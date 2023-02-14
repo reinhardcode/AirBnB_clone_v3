@@ -23,7 +23,7 @@ def stats():
     from models.user import User
     from models.review import Review
     from models.place import Place
-    
+
     stats_dic.update({"amenities": storage.count(Amenity)})
     stats_dic.update({"cities": storage.count(City)})
     stats_dic.update({"places": storage.count(Place)})
@@ -32,4 +32,3 @@ def stats():
     stats_dic.update({"users": storage.count(User)})
 
     return jsonify(stats_dic)
-
