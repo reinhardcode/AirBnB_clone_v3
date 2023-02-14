@@ -7,4 +7,5 @@ from flask import jsonify
 
 @app_views.route('/status')
 def index():
+    """blueprint function"""
     return jsonify({"status": "OK"})
