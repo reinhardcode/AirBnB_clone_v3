@@ -7,6 +7,7 @@ from api.v1.views import app_views
 from flask import jsonify, make_response, request
 from os import getenv
 
+
 @app_views.route('/states/<state_id>/cities',
                  strict_slashes=False, methods=['GET'])
 def get_state_cites(state_id):
