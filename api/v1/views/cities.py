@@ -58,7 +58,7 @@ def create_city(state_id):
         city_dict = request.json
         city_dict.update({'state_id': state_id})
         new_city = City(**city_dict)
-        
+
         new_city.save()
         return jsonify(new_city.to_dict()), 201
     return make_response(jsonify({"error": "Not found"}), 404)
@@ -74,7 +74,7 @@ def update_city(city_id):
             return make_response(jsonify({"error": "Not a JSON"}), 400)
         data = request.json
         data = {k: v for k, v in data.items() if k != 'id' and
-                    k != 'created_at' and k != 'updated_at'}
+                k != 'created_at' and k != 'updated_at'}
         for k, v in data.items():
             setattr(city, k, v)
         city.save()
