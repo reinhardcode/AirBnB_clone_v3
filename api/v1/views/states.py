@@ -36,17 +36,16 @@ def delete_state(state_id=""):
         storage.save()
         return jsonify({})
     else:
-        abort(404)
+        return make_response(jsonify({"error": "Not found"}), 404)
 
 
 @app_views.route('/states', strict_slashes=False, methods=['POST'])
 def create_state():
     """create a new state"""
     if not request.json:
-        abort(400, description='Not a JSON')
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
     if 'name' not in request.json:
         return make_response(jsonify({"error": "Missing name"}), 400)
-        # abort(400, description='Missing name')
 
     new_state = State(name=request.json['name'])
     new_state.save()
@@ -67,5 +66,5 @@ def update_state(state_id):
                 setattr(state, k, v)
             state.save()
             return jsonify(state.to_dict()), 200
-        abort(404)
-    abort(400, description='Not a JSON')
+        return make_response(jsonify({"error": "Not found"}), 404)
+    return make_response(jsonify({"error": "Not a JSON"}), 400)
