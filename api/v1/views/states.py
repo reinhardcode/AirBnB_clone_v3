@@ -45,7 +45,8 @@ def create_state():
     if not request.json:
         abort(400, description='Not a JSON')
     if 'name' not in request.json:
-        abort(400, description='Missing name')
+        return make_response(jsonify({"error": "Missing name"}), 400)
+        # abort(400, description='Missing name')
 
     new_state = State(name=request.json['name'])
     new_state.save()
