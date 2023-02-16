@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""cities view"""
+"""user view"""
 from models import storage
 from models.state import State
 from models.user import User
