@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Contains the FileStorage class
+Contains FileStorage class
 """
 
 import json
@@ -41,7 +41,7 @@ class FileStorage:
             self.__objects[key] = obj
 
     def save(self):
-        """serializes __objects to the JSON file (path: __file_path)"""
+        """serializes __objects to JSON file (path: __file_path)"""
         json_objects = {}
         for key in self.__objects:
             json_objects[key] = self.__objects[key].to_dict()
@@ -49,7 +49,7 @@ class FileStorage:
             json.dump(json_objects, f)
 
     def reload(self):
-        """deserializes the JSON file to __objects"""
+        """deserializes JSON file to __objects"""
         try:
             with open(self.__file_path, 'r') as f:
                 jo = json.load(f)
@@ -66,11 +66,11 @@ class FileStorage:
                 del self.__objects[key]
 
     def close(self):
-        """call reload() method for deserializing the JSON file to objects"""
+        """call reload() method for deserializing JSON file to objects"""
         self.reload()
 
     def get(self, cls, id):
-        """a method to retrieve one object"""
+        """method to retrieve one object"""
         objs = self.all(cls)
         for key, value in objs.items():
             if value.id == id:
@@ -78,7 +78,7 @@ class FileStorage:
         return None
 
     def count(self, cls=None):
-        """a method to count the number of methods in storage"""
+        """method to count the number of methods in storage"""
         if cls is not None:
             objs = self.all(cls)
             count = 0
