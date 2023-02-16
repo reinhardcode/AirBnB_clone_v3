@@ -1,6 +1,6 @@
 #!/usr/bin/python3
-"""this module creates a flask app to
-serve an api
+"""
+This module creates a flask app to serve an api
 """
 
 from flask import Flask, make_response, jsonify
@@ -14,7 +14,7 @@ app.register_blueprint(app_views, url_prefix="/api/v1")
 
 @app.teardown_appcontext
 def teardown_db(exception):
-    """teardown functrion"""
+    """Teardown Function"""
     storage.close()
 
 
