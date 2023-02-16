@@ -85,7 +85,7 @@ class DBStorage:
 
     def count(self, cls=None):
         """a method to count number of methods in storage"""
-        """method to count the numb
+
         if cls is not None:
             objs = self.all(cls)
             count = 0
