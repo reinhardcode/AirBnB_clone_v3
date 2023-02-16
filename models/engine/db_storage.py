@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Contains the class DBStorage
+Contains DBStorage Class
 """
 
 import models
@@ -21,7 +21,7 @@ classes = {"Amenity": Amenity, "City": City,
 
 
 class DBStorage:
-    """interacts with MySQL database"""
+    """interaacts with MySQL database"""
     __engine = None
     __session = None
 
@@ -65,7 +65,7 @@ class DBStorage:
             self.__session.delete(obj)
 
     def reload(self):
-        """reloads data from the database"""
+        """reloads data from database"""
         Base.metadata.create_all(self.__engine)
         sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
         Session = scoped_session(sess_factory)
@@ -84,7 +84,8 @@ class DBStorage:
         return None
 
     def count(self, cls=None):
-        """method to count the number of methods in storage"""
+        """a method to count number of methods in storage"""
+        """method to count the numb
         if cls is not None:
             objs = self.all(cls)
             count = 0
