@@ -49,7 +49,7 @@ class FileStorage:
             json.dump(json_objects, f)
 
     def reload(self):
-        """deserializes the JSON file to __objects"""
+        """deserializes JSON file to __objects"""
         try:
             with open(self.__file_path, 'r') as f:
                 jo = json.load(f)
@@ -70,7 +70,7 @@ class FileStorage:
         self.reload()
 
     def get(self, cls, id):
-        """a method to retrieve one object"""
+        """method to retrieve one object"""
         objs = self.all(cls)
         for key, value in objs.items():
             if value.id == id:
