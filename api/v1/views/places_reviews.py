@@ -1,69 +1,89 @@
 #!/usr/bin/python3
-"""handles all default RESTFul API actions"""
+"""review view"""
+from models import storage
+from models.city import City
+from models.place import Place
+from models.user import User
+from models.review import Review
 from api.v1.views import app_views
-from flask import abort, jsonify, request
-#from flasgger.utils import swag_from
-from models import storage, CNC
+from flask import jsonify, make_response, request
+from os import getenv
 
 
-@app_views.route('/places/<place_id>/reviews', methods=['GET', 'POST'])
-#@swag_from('swagger_yaml/reviews_by_place.yml', methods=['GET', 'POST'])
-def reviews_per_place(place_id=None):
-    """handle http method for requested reviews by place"""
-    place_obj = storage.get('Place', place_id)
-
-    if request.method == 'GET':
-        if place_obj is None:
-            abort(404, 'Not found')
-        all_reviews = storage.all('Review')
-        place_reviews = [obj.to_json() for obj in all_reviews.values()
-                         if obj.place_id == place_id]
-        return jsonify(place_reviews)
-
-    if request.method == 'POST':
-        if place_obj is None:
-            abort(404, 'Not found')
-        req_json = request.get_json()
-        if req_json is None:
-            abort(400, 'Not a JSON')
-        user_id = req_json.get("user_id")
-        if user_id is None:
-            abort(400, 'Missing user_id')
-        user_obj = storage.get('User', user_id)
-        if user_obj is None:
-            abort(404, 'Not found')
-        if req_json.get('text') is None:
-            abort(400, 'Missing text')
-        Review = CNC.get("Review")
-        req_json['place_id'] = place_id
-        new_object = Review(**req_json)
-        new_object.save()
-        return jsonify(new_object.to_json()), 201
+@app_views.route('/places/<place_id>/reviews',
+                 strict_slashes=False, methods=['GET'])
+def get_reviews(place_id):
+    """get the list of reviews of a place based on id"""
+    place = storage.get(Place, place_id)
+    if place:
+        if getenv('HBNB_TYPE_STORAGE') == 'db':
+            reviews = place.reviews
+        else:
+            reviews = place.reviews()
+        lst_r = [review.to_dict() for review in reviews]
+        return jsonify(lst_r), 200
+    return make_response(jsonify({"error": "Not found"}), 404)
 
 
-@app_views.route('/reviews/<review_id>', methods=['GET', 'DELETE', 'PUT'])
-#@swag_from('swagger_yaml/reviews_id.yml', methods=['GET', 'DELETE', 'PUT'])
-def reviews_with_id(review_id=None):
-    """handle http methods for given review by ID"""
-    review_obj = storage.get('Review', review_id)
+@app_views.route('/reviews/<review_id>',
+                 strict_slashes=False, methods=['GET'])
+def get_review(review_id):
+    """get review with the given id"""
+    review = storage.get(Review, review_id)
+    if review:
+        return jsonify(review.to_dict()), 200
+    return make_response(jsonify({"error": "Not found"}), 404)
 
-    if request.method == 'GET':
-        if review_obj is None:
-            abort(404, 'Not found')
-        return jsonify(review_obj.to_json())
 
-    if request.method == 'DELETE':
-        if review_obj is None:
-            abort(404, 'Not found')
-        review_obj.delete()
-        del review_obj
+@app_views.route('/reviews/<review_id>',
+                 strict_slashes=False, methods=['DELETE'])
+def delete_review(review_id):
+    """delete review with given id"""
+    review = storage.get(Review, review_id)
+    if review:
+        review.delete()
+        storage.save()
         return jsonify({}), 200
+    return make_response(jsonify({"error": "Not found"}), 404)
 
-    if request.method == 'PUT':
-        if review_obj is None:
-            abort(404, 'Not found')
-        req_json = request.get_json()
-        if req_json is None:
-            abort(400, 'Not a JSON')
-        review_obj.bm_update(req_json)
-        return jsonify(review_obj.to_json()), 200
+
+@app_views.route('/places/<place_id>/reviews',
+                 strict_slashes=False, methods=['POST'])
+def create_review(place_id):
+    """create review for a given city id"""
+    place = storage.get(Place, place_id)
+    if place:
+        if not request.json:
+            return make_response(jsonify({"error": "Not a JSON"}), 400)
+        if 'user_id' not in request.json:
+            return make_response(jsonify({"error": "Missing user_id"}), 400)
+        user = storage.get(User, request.json['user_id'])
+        if not user:
+            return make_response(jsonify({"error": "Not found"}), 404)
+        if 'text' not in request.json:
+            return make_response(jsonify({"error": "Missing text"}), 400)
+        review_dict = request.json
+        review_dict.update({'place_id': place_id})
+        new_review = Review(**review_dict)
+
+        new_review.save()
+        return jsonify(new_review.to_dict()), 201
+    return make_response(jsonify({"error": "Not found"}), 404)
+
+
+@app_views.route('/reviews/<review_id>',
+                 strict_slashes=False, methods=['PUT'])
+def update_review(review_id):
+    """updates review based on the review_id"""
+    review = storage.get(Review, review_id)
+    if review:
+        if not request.json:
+            return make_response(jsonify({"error": "Not a JSON"}), 400)
+        data = request.json
+        data = {k: v for k, v in data.items() if k != 'id' and
+                k != 'created_at' and k != 'updated_at'}
+        for k, v in data.items():
+            setattr(review, k, v)
+        review.save()
+        return jsonify(review.to_dict()), 200
+    return make_response(jsonify({"error": "Not found"}), 404)
